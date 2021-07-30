@@ -20,7 +20,7 @@ SOFTWARE.
 package org.bkatwal.relevanceevaluator;
 
 import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.dto.QueryRating;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CollectionUtils;
 
@@ -37,15 +37,15 @@ public class Precision extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
+    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
 
-        if (queryResultsRating == null
-                || CollectionUtils.isEmpty(queryResultsRating.getInputDocRatings())) {
+        if (queryRating == null
+                || CollectionUtils.isEmpty(queryRating.getQueryResultsDocRating())) {
             throw new RelevanceEvaluatorException("Precision: Input results ratings can not be " +
                     "empty");
         }
 
-        List<DocRating> inputDocRatings = queryResultsRating.getInputDocRatings();
+        List<DocRating> inputDocRatings = queryRating.getQueryResultsDocRating();
         if (probeSize == null) {
             probeSize = inputDocRatings.size();
         } else {

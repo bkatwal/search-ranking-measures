@@ -21,7 +21,7 @@ package org.bkatwal.relevanceevaluator;
 
 import org.bkatwal.dto.DocRating;
 import org.bkatwal.dto.DocRatingBuilder;
-import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.dto.QueryRating;
 import org.bkatwal.dto.RelevanceVal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,9 +47,9 @@ public class TestAveragePrecision {
         docsToEval.add(DocRatingBuilder.aDocRating().docId("6").relevant(true).build());
         docsToEval.add(DocRatingBuilder.aDocRating().docId("7").relevant(true).build());
 
-        QueryResultsRating queryResultsRating = new QueryResultsRating();
-        queryResultsRating.setInputDocRatings(docsToEval);
-        double metric = relevanceEvaluator.evalQuery(queryResultsRating);
+        QueryRating queryRating = new QueryRating();
+        queryRating.setQueryResultsDocRating(docsToEval);
+        double metric = relevanceEvaluator.evalQuery(queryRating);
         Assert.assertEquals(0.75, metric, 0.1D);
 
         List<DocRating> docsToEval1 = new ArrayList<>();
@@ -62,16 +62,16 @@ public class TestAveragePrecision {
         docsToEval1.add(DocRatingBuilder.aDocRating().docId("6").relevant(true).build());
         docsToEval1.add(DocRatingBuilder.aDocRating().docId("7").relevant(true).build());
 
-        QueryResultsRating queryResultsRating1 = new QueryResultsRating();
-        queryResultsRating1.setInputDocRatings(docsToEval1);
-        double metric1 = relevanceEvaluator.evalQuery(queryResultsRating1);
+        QueryRating queryRating1 = new QueryRating();
+        queryRating1.setQueryResultsDocRating(docsToEval1);
+        double metric1 = relevanceEvaluator.evalQuery(queryRating1);
         Assert.assertTrue(metric > metric1);
     }
 
     @Test
     public void testMeanAveragePrecision() {
         RelevanceEvaluator relevanceEvaluator = new AveragePrecision();
-        Map<Integer, QueryResultsRating> queryResultsRatingMap = new HashMap<>();
+        Map<Integer, QueryRating> queryResultsRatingMap = new HashMap<>();
 
         List<DocRating> docsToEval = new ArrayList<>();
 
@@ -83,9 +83,9 @@ public class TestAveragePrecision {
         docsToEval.add(DocRatingBuilder.aDocRating().docId("6").relevant(true).build());
         docsToEval.add(DocRatingBuilder.aDocRating().docId("7").relevant(true).build());
 
-        QueryResultsRating queryResultsRating = new QueryResultsRating();
-        queryResultsRating.setInputDocRatings(docsToEval);
-        queryResultsRatingMap.put(1, queryResultsRating);
+        QueryRating queryRating = new QueryRating();
+        queryRating.setQueryResultsDocRating(docsToEval);
+        queryResultsRatingMap.put(1, queryRating);
 
         List<DocRating> docsToEval1 = new ArrayList<>();
         docsToEval1.add(DocRatingBuilder.aDocRating().docId("1").relevant(false).build());
@@ -96,9 +96,9 @@ public class TestAveragePrecision {
         docsToEval1.add(DocRatingBuilder.aDocRating().docId("6").relevant(true).build());
         docsToEval1.add(DocRatingBuilder.aDocRating().docId("7").relevant(true).build());
 
-        QueryResultsRating queryResultsRating1 = new QueryResultsRating();
-        queryResultsRating1.setInputDocRatings(docsToEval1);
-        queryResultsRatingMap.put(2, queryResultsRating1);
+        QueryRating queryRating1 = new QueryRating();
+        queryRating1.setQueryResultsDocRating(docsToEval1);
+        queryResultsRatingMap.put(2, queryRating1);
 
         RelevanceVal relevanceVal = relevanceEvaluator.evalAveraged(queryResultsRatingMap);
 

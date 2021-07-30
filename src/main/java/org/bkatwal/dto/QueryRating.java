@@ -21,13 +21,13 @@ package org.bkatwal.dto;
 
 import java.util.List;
 
-public class QueryResultsRating {
+public class QueryRating {
 
     // marked rating of each doc of a query
-    private List<DocRating> inputDocRatings;
+    private List<DocRating> queryResultsDocRating;
 
     // predefined list of relevant docs for a given query
-    private List<DocRating> preDefinedRatings;
+    private List<DocRating> knownRelevantDocsRating;
 
     // total relevant docs count for a given query, if null recall will be set to total relevant
     // docs
@@ -37,34 +37,34 @@ public class QueryResultsRating {
     // total hits that matched the query from service response
     private Long totalHits;
 
-    public QueryResultsRating() {
+    public QueryRating() {
     }
 
-    public QueryResultsRating(
-            List<DocRating> inputDocRatings,
-            List<DocRating> preDefinedRatings,
+    public QueryRating(
+            List<DocRating> queryResultsDocRating,
+            List<DocRating> knownRelevantDocsRating,
             Long totalRelevantHits,
             Long totalHits) {
-        this.inputDocRatings = inputDocRatings;
-        this.preDefinedRatings = preDefinedRatings;
+        this.queryResultsDocRating = queryResultsDocRating;
+        this.knownRelevantDocsRating = knownRelevantDocsRating;
         this.totalRelevantHits = totalRelevantHits;
         this.totalHits = totalHits;
     }
 
-    public List<DocRating> getInputDocRatings() {
-        return inputDocRatings;
+    public List<DocRating> getQueryResultsDocRating() {
+        return queryResultsDocRating;
     }
 
-    public List<DocRating> getPreDefinedRatings() {
-        return preDefinedRatings;
+    public List<DocRating> getKnownRelevantDocsRating() {
+        return knownRelevantDocsRating;
     }
 
-    public void setInputDocRatings(List<DocRating> inputDocRatings) {
-        this.inputDocRatings = inputDocRatings;
+    public void setQueryResultsDocRating(List<DocRating> queryResultsDocRating) {
+        this.queryResultsDocRating = queryResultsDocRating;
     }
 
-    public void setPreDefinedRatings(List<DocRating> preDefinedRatings) {
-        this.preDefinedRatings = preDefinedRatings;
+    public void setKnownRelevantDocsRating(List<DocRating> knownRelevantDocsRating) {
+        this.knownRelevantDocsRating = knownRelevantDocsRating;
     }
 
     public Long getTotalRelevantHits() {
@@ -73,12 +73,12 @@ public class QueryResultsRating {
             return this.totalRelevantHits;
         }
         long totalRelevantHitsCalc = 0;
-        if (inputDocRatings != null && !inputDocRatings.isEmpty()) {
+        if (queryResultsDocRating != null && !queryResultsDocRating.isEmpty()) {
             totalRelevantHitsCalc =
-                    totalRelevantHitsCalc + inputDocRatings.stream().filter(DocRating::getRelevant).count();
+                    totalRelevantHitsCalc + queryResultsDocRating.stream().filter(DocRating::getRelevant).count();
         }
-        if (preDefinedRatings != null && !preDefinedRatings.isEmpty()) {
-            totalRelevantHitsCalc = totalRelevantHitsCalc + preDefinedRatings.size();
+        if (knownRelevantDocsRating != null && !knownRelevantDocsRating.isEmpty()) {
+            totalRelevantHitsCalc = totalRelevantHitsCalc + knownRelevantDocsRating.size();
         }
         return totalRelevantHitsCalc;
     }
@@ -93,11 +93,11 @@ public class QueryResultsRating {
             return totalHits;
         }
         long totalHitsCalc = 0;
-        if (inputDocRatings != null && !inputDocRatings.isEmpty()) {
-            totalHitsCalc = totalHitsCalc + inputDocRatings.size();
+        if (queryResultsDocRating != null && !queryResultsDocRating.isEmpty()) {
+            totalHitsCalc = totalHitsCalc + queryResultsDocRating.size();
         }
-        if (preDefinedRatings != null && !preDefinedRatings.isEmpty()) {
-            totalHitsCalc = totalHitsCalc + preDefinedRatings.size();
+        if (knownRelevantDocsRating != null && !knownRelevantDocsRating.isEmpty()) {
+            totalHitsCalc = totalHitsCalc + knownRelevantDocsRating.size();
         }
         return totalHitsCalc;
     }

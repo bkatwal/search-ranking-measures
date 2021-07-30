@@ -20,7 +20,7 @@ SOFTWARE.
 package org.bkatwal.relevanceevaluator;
 
 import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.dto.QueryRating;
 import org.bkatwal.dto.RelevanceVal;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CollectionUtils;
@@ -44,17 +44,17 @@ public abstract class RelevanceEvaluator {
         this.relevanceEvaluatorType = relevanceEvaluatorType;
     }
 
-    protected abstract double eval(QueryResultsRating queryResultsRating)
+    protected abstract double eval(QueryRating queryRating)
             throws RelevanceEvaluatorException;
 
-    public double evalQuery(QueryResultsRating queryResultsRating)
+    public double evalQuery(QueryRating queryRating)
             throws RelevanceEvaluatorException {
         updateDocRatingsUsingExpectedRating(
-                queryResultsRating.getInputDocRatings(), queryResultsRating.getPreDefinedRatings());
-        return eval(queryResultsRating);
+                queryRating.getQueryResultsDocRating(), queryRating.getKnownRelevantDocsRating());
+        return eval(queryRating);
     }
 
-    public RelevanceVal evalAveraged(Map<Integer, QueryResultsRating> queryResultsRatingMap) {
+    public RelevanceVal evalAveraged(Map<Integer, QueryRating> queryResultsRatingMap) {
 
         if (CollectionUtils.isEmpty(queryResultsRatingMap)) {
             throw new RelevanceEvaluatorException("No query ratings passed.");
@@ -63,12 +63,12 @@ public abstract class RelevanceEvaluator {
 
         Map<Integer, Double> queryInstanceToMetric = new LinkedHashMap<>();
 
-        for (Map.Entry<Integer, QueryResultsRating> instanceGradeEntry :
+        for (Map.Entry<Integer, QueryRating> instanceGradeEntry :
                 queryResultsRatingMap.entrySet()) {
             Integer instanceId = instanceGradeEntry.getKey();
-            QueryResultsRating queryResultsRating = instanceGradeEntry.getValue();
+            QueryRating queryRating = instanceGradeEntry.getValue();
 
-            double val = eval(queryResultsRating);
+            double val = eval(queryRating);
             queryInstanceToMetric.put(instanceId, val);
         }
         relevanceVal.setMeanMetric(mean((queryInstanceToMetric.values())));

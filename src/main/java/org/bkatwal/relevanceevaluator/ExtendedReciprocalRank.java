@@ -20,7 +20,7 @@ SOFTWARE.
 package org.bkatwal.relevanceevaluator;
 
 import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.dto.QueryRating;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CollectionUtils;
 
@@ -38,21 +38,21 @@ public class ExtendedReciprocalRank extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
-        List<DocRating> inputDocRatings = queryResultsRating.getInputDocRatings();
+    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
+        List<DocRating> inputDocRatings = queryRating.getQueryResultsDocRating();
 
         if (CollectionUtils.isEmpty(inputDocRatings)) {
             throw new RelevanceEvaluatorException(
                     "Extended Reciprocal Rank: Input results ratings can not be empty");
         }
 
-        if (CollectionUtils.isEmpty(queryResultsRating.getPreDefinedRatings())) {
+        if (CollectionUtils.isEmpty(queryRating.getKnownRelevantDocsRating())) {
             throw new RelevanceEvaluatorException(
                     "Reciprocal Rank: missing predefined relevant docs list");
         }
         Map<String, Integer> docIdToPositionMap = getPositionByDocIDMap(inputDocRatings);
 
-        List<DocRating> preDefinedDocRatings = queryResultsRating.getPreDefinedRatings();
+        List<DocRating> preDefinedDocRatings = queryRating.getKnownRelevantDocsRating();
         double err = 0.0d;
         for (int i = 0; i < preDefinedDocRatings.size(); i++) {
 

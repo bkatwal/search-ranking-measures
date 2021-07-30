@@ -21,7 +21,7 @@ package org.bkatwal.relevanceevaluator;
 
 import org.bkatwal.dto.DocRating;
 import org.bkatwal.dto.DocRatingBuilder;
-import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.dto.QueryRating;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,9 +43,9 @@ public class TestPrecision {
         docsToEval.add(DocRatingBuilder.aDocRating().docId("6").relevant(true).build());
         docsToEval.add(DocRatingBuilder.aDocRating().docId("7").relevant(true).build());
 
-        QueryResultsRating queryResultsRating = new QueryResultsRating();
-        queryResultsRating.setInputDocRatings(docsToEval);
-        double metric = precisionEvaluator.evalQuery(queryResultsRating);
+        QueryRating queryRating = new QueryRating();
+        queryRating.setQueryResultsDocRating(docsToEval);
+        double metric = precisionEvaluator.evalQuery(queryRating);
         Assert.assertEquals(0.66, metric, 0.1D);
     }
 }

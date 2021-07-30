@@ -21,7 +21,7 @@ package org.bkatwal.relevanceevaluator;
 
 
 import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.dto.QueryRating;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CalculateUtil;
 import org.bkatwal.util.CollectionUtils;
@@ -41,13 +41,13 @@ public class DCG extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
+    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
 
-        if (CollectionUtils.isEmpty(queryResultsRating.getInputDocRatings())) {
+        if (CollectionUtils.isEmpty(queryRating.getQueryResultsDocRating())) {
             throw new RelevanceEvaluatorException("DCG: Input results ratings can not be empty");
         }
 
-        List<DocRating> inputDocRatings = queryResultsRating.getInputDocRatings();
+        List<DocRating> inputDocRatings = queryRating.getQueryResultsDocRating();
         if (probeSize == null) {
             probeSize = inputDocRatings.size();
         } else {

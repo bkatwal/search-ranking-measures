@@ -20,7 +20,7 @@ SOFTWARE.
 package org.bkatwal.relevanceevaluator;
 
 
-import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.dto.QueryRating;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
 
 public class FScore extends RelevanceEvaluator {
@@ -53,10 +53,10 @@ public class FScore extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
+    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
 
-        double precision = precisionEvaluator.eval(queryResultsRating);
-        double recall = recallEvaluator.eval(queryResultsRating);
+        double precision = precisionEvaluator.eval(queryRating);
+        double recall = recallEvaluator.eval(queryRating);
 
         if (precision == 0.0d || recall == 0.0d) {
             return 0.0d;
