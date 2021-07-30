@@ -30,11 +30,11 @@ import java.util.Map;
 
 public class ExtendedReciprocalRank extends RelevanceEvaluator {
     protected ExtendedReciprocalRank(Integer probeSize) {
-        super(probeSize, RelevanceEvaluatorType.RECIPROCAL_RANKING);
+        super(probeSize, RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
     }
 
     protected ExtendedReciprocalRank() {
-        super(RelevanceEvaluatorType.RECIPROCAL_RANKING);
+        super(RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
     }
 
     @Override

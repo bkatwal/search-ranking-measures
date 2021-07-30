@@ -20,10 +20,11 @@ SOFTWARE.
 package org.bkatwal.relevanceevaluator;
 
 public enum RelevanceEvaluatorType {
-  F_SCORE,
-  AVERAGE_PRECISION,
-  DCG,
-  RECIPROCAL_RANKING,
-  PRECISION,
-  RECALL;
+    F_SCORE,
+    AVERAGE_PRECISION,
+    DCG,
+    RECIPROCAL_RANKING,
+    PRECISION,
+    RECALL,
+    EXTENDED_RECIPROCAL_RANKING
 }
