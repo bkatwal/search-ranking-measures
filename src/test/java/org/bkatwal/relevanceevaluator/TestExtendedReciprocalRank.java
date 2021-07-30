@@ -49,13 +49,13 @@ public class TestExtendedReciprocalRank {
         QueryResultsRating queryResultsRating = new QueryResultsRating();
         queryResultsRating.setInputDocRatings(resultSetRatings);
 
-        List<DocRating> topDocsRatings = new ArrayList<>();
-        topDocsRatings.add(DocRatingBuilder.aDocRating().docId("doc 1").maxPosition(2).build());
-        topDocsRatings.add(DocRatingBuilder.aDocRating().docId("doc 5").maxPosition(4).build());
-        topDocsRatings.add(DocRatingBuilder.aDocRating().docId("doc 8").maxPosition(6).build());
-        topDocsRatings.add(DocRatingBuilder.aDocRating().docId("doc 11").maxPosition(8).build());
+        List<DocRating> knownRelevantDocsRating = new ArrayList<>();
+        knownRelevantDocsRating.add(DocRatingBuilder.aDocRating().docId("doc 1").maxPosition(2).build());
+        knownRelevantDocsRating.add(DocRatingBuilder.aDocRating().docId("doc 5").maxPosition(4).build());
+        knownRelevantDocsRating.add(DocRatingBuilder.aDocRating().docId("doc 8").maxPosition(6).build());
+        knownRelevantDocsRating.add(DocRatingBuilder.aDocRating().docId("doc 11").maxPosition(8).build());
 
-        queryResultsRating.setPreDefinedRatings(topDocsRatings);
+        queryResultsRating.setPreDefinedRatings(knownRelevantDocsRating);
 
         double metric = extendedReciprocalRank.evalQuery(queryResultsRating);
         Assert.assertEquals(0.46, metric, 0.1D);
