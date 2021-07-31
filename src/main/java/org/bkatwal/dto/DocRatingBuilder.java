@@ -20,9 +20,10 @@ SOFTWARE.
 package org.bkatwal.dto;
 
 public final class DocRatingBuilder {
+
     private String docId;
-    private Double grade;
-    private Boolean relevant;
+    private Double grade = 0.0d;
+    private boolean relevant = false;
     private Integer maxPosition;
 
     private DocRatingBuilder() {
@@ -42,7 +43,7 @@ public final class DocRatingBuilder {
         return this;
     }
 
-    public DocRatingBuilder relevant(Boolean relevant) {
+    public DocRatingBuilder relevant(boolean relevant) {
         this.relevant = relevant;
         return this;
     }

@@ -19,15 +19,18 @@ SOFTWARE.
  */
 package org.bkatwal.relevanceevaluator;
 
-import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryRating;
-import org.bkatwal.dto.RelevanceVal;
-import org.bkatwal.exceptions.RelevanceEvaluatorException;
-import org.bkatwal.util.CollectionUtils;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.bkatwal.dto.DocRating;
+import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.dto.RelevanceQualityMetric;
+import org.bkatwal.exceptions.RelevanceEvaluatorException;
+import org.bkatwal.util.CollectionUtils;
 
 public abstract class RelevanceEvaluator {
 
@@ -44,40 +47,40 @@ public abstract class RelevanceEvaluator {
         this.relevanceEvaluatorType = relevanceEvaluatorType;
     }
 
-    protected abstract double eval(QueryRating queryRating)
-            throws RelevanceEvaluatorException;
+    protected abstract double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException;
 
-    public double evalQuery(QueryRating queryRating)
-            throws RelevanceEvaluatorException {
+    public double evalQuery(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
         updateDocRatingsUsingExpectedRating(
-                queryRating.getQueryResultsDocRating(), queryRating.getKnownRelevantDocsRating());
-        return eval(queryRating);
+            queryResultsRating.getQueryResultsDocRating(), queryResultsRating.getKnownRelevantDocsRating());
+        return eval(queryResultsRating);
     }
 
-    public RelevanceVal evalAveraged(Map<Integer, QueryRating> queryResultsRatingMap) {
+    public RelevanceQualityMetric evalAveraged(Map<Integer, QueryResultsRating> queryResultsRatingMap) {
 
         if (CollectionUtils.isEmpty(queryResultsRatingMap)) {
             throw new RelevanceEvaluatorException("No query ratings passed.");
         }
-        RelevanceVal relevanceVal = new RelevanceVal(relevanceEvaluatorType);
+        RelevanceQualityMetric relevanceQualityMetric =
+            new RelevanceQualityMetric(relevanceEvaluatorType);
 
-        Map<Integer, Double> queryInstanceToMetric = new LinkedHashMap<>();
+        Map<Integer, Double> qualityMetricByInstanceId = new LinkedHashMap<>();
 
-        for (Map.Entry<Integer, QueryRating> instanceGradeEntry :
-                queryResultsRatingMap.entrySet()) {
+        for (Map.Entry<Integer, QueryResultsRating> instanceGradeEntry : queryResultsRatingMap
+            .entrySet()) {
             Integer instanceId = instanceGradeEntry.getKey();
-            QueryRating queryRating = instanceGradeEntry.getValue();
+            QueryResultsRating queryResultsRating = instanceGradeEntry.getValue();
 
-            double val = eval(queryRating);
-            queryInstanceToMetric.put(instanceId, val);
+            double val = eval(queryResultsRating);
+            qualityMetricByInstanceId.put(instanceId, val);
         }
-        relevanceVal.setMeanMetric(mean((queryInstanceToMetric.values())));
-        relevanceVal.setQueryInstanceToMetric(queryInstanceToMetric);
-        return relevanceVal;
+        relevanceQualityMetric.setMeanMetric(mean((qualityMetricByInstanceId.values())));
+        relevanceQualityMetric.setQualityMetricByInstanceId(qualityMetricByInstanceId);
+        return relevanceQualityMetric;
     }
 
     protected double mean(final Collection<Double> relevanceMetrics) {
-        return relevanceMetrics.stream().mapToDouble(Double::doubleValue).average().orElse(Double.NaN);
+        return relevanceMetrics.stream().mapToDouble(Double::doubleValue).average()
+            .orElse(Double.NaN);
     }
 
     protected double mean(final double[] relevanceMetrics) {
@@ -86,42 +89,31 @@ public abstract class RelevanceEvaluator {
 
     /***
      * This method rates the result of a query based on pre defined set of relevant result
-     * @param inputDocRatings List of rating of all docs from a query instance results.
-     * @param preDefinedDocRatings pre defined list of expected results and their ratings
+     * @param queryResultsDocRating List of rating of all docs from a query instance results.
+     * @param knownRelevantDocsRating pre defined list of expected results and their ratings
      */
     protected void updateDocRatingsUsingExpectedRating(
-            List<DocRating> inputDocRatings, List<DocRating> preDefinedDocRatings) {
+        List<DocRating> queryResultsDocRating, List<DocRating> knownRelevantDocsRating) {
 
-        if (CollectionUtils.isEmpty(preDefinedDocRatings)) {
+        if (CollectionUtils.isEmpty(knownRelevantDocsRating)) {
             return;
         }
-        Map<String, DocRating> expectedRatingsMap =
-                preDefinedDocRatings.stream()
-                        .collect(Collectors.toMap(DocRating::getDocId, Function.identity()));
-        double grade = preDefinedDocRatings.size();
-        for (DocRating docRating : inputDocRatings) {
+        Map<String, DocRating> knownDocsRatingMap =
+            knownRelevantDocsRating.stream()
+                .collect(Collectors.toMap(DocRating::getDocId, Function.identity()));
+        double grade = knownRelevantDocsRating.size();
+        for (DocRating docRating : queryResultsDocRating) {
 
-            DocRating expectedDocRating = expectedRatingsMap.get(docRating.getDocId());
+            DocRating knownDocRating = knownDocsRatingMap.get(docRating.getDocId());
 
-            if (expectedDocRating != null) {
+            if (knownDocRating != null) {
                 docRating.setRelevant(true);
-                if (expectedDocRating.getGrade() == null || expectedDocRating.getGrade() == 0.0D) {
+                if (knownDocRating.getGrade() == null || knownDocRating.getGrade() == 0.0D) {
                     docRating.setGrade(grade);
                     grade = grade - 1.0d;
                 }
             }
         }
-    }
-
-    protected int totalRelevantDocsInProbeSize(List<DocRating> inputDocRatings) {
-        int totalRelevant = 0;
-
-        for (int i = 0; i < probeSize; i++) {
-            if (inputDocRatings.get(i).getRelevant()) {
-                totalRelevant++;
-            }
-        }
-        return totalRelevant;
     }
 
     private void isValidProbeSize(Integer probeSize) {

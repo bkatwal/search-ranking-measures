@@ -19,16 +19,14 @@ SOFTWARE.
  */
 package org.bkatwal.relevanceevaluator;
 
-
-import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryRating;
-import org.bkatwal.exceptions.RelevanceEvaluatorException;
-import org.bkatwal.util.CalculateUtil;
-import org.bkatwal.util.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.bkatwal.dto.DocRating;
+import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.exceptions.RelevanceEvaluatorException;
+import org.bkatwal.util.CalculateUtil;
+import org.bkatwal.util.CollectionUtils;
 
 public class DCG extends RelevanceEvaluator {
 
@@ -41,29 +39,34 @@ public class DCG extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
+    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
 
-        if (CollectionUtils.isEmpty(queryRating.getQueryResultsDocRating())) {
-            throw new RelevanceEvaluatorException("DCG: Input results ratings can not be empty");
+        if (CollectionUtils.isEmpty(queryResultsRating.getQueryResultsDocRating())) {
+            throw new RelevanceEvaluatorException("DCG: query results ratings can not be empty");
         }
 
-        List<DocRating> inputDocRatings = queryRating.getQueryResultsDocRating();
+        List<DocRating> queryResultsDocRating = queryResultsRating.getQueryResultsDocRating();
         if (probeSize == null) {
-            probeSize = inputDocRatings.size();
+            probeSize = queryResultsDocRating.size();
         } else {
-            probeSize = Math.min(probeSize, inputDocRatings.size());
+            probeSize = Math.min(probeSize, queryResultsDocRating.size());
         }
-        double iDCG = idealDCG(inputDocRatings);
+
+        if (probeSize < queryResultsDocRating.size()) {
+            queryResultsDocRating = queryResultsDocRating.subList(0, probeSize);
+        }
+
+        double iDCG = idealDCG(queryResultsDocRating);
 
         if (iDCG == 0) {
             return 0.0d;
         }
-        List<Double> inputDocGrades = new ArrayList<>();
+        List<Double> queryResultsDocGrades = new ArrayList<>();
         for (int i = 0; i < probeSize; i++) {
-            inputDocGrades.add(inputDocRatings.get(i).getGrade());
+            queryResultsDocGrades.add(queryResultsDocRating.get(i).getGrade());
         }
 
-        double dcg = calculateDCG(inputDocGrades);
+        double dcg = calculateDCG(queryResultsDocGrades);
 
         return dcg / iDCG;
     }
@@ -82,9 +85,9 @@ public class DCG extends RelevanceEvaluator {
     private double calculateDCG(List<Double> inputDocGrades) {
         double iDCG = 0.0d;
 
-        for (int i = 0; i < inputDocGrades.size(); i++) {
+        for (int i = 1; i <= inputDocGrades.size(); i++) {
             double denominator = CalculateUtil.log2(i + 1);
-            double numerator = Math.pow(2, inputDocGrades.get(i)) - 1;
+            double numerator = Math.pow(2, inputDocGrades.get(i - 1)) - 1;
 
             iDCG = iDCG + numerator / denominator;
         }

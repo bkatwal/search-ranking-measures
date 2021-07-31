@@ -19,14 +19,14 @@ SOFTWARE.
  */
 package org.bkatwal.relevanceevaluator;
 
+import java.util.List;
 import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryRating;
+import org.bkatwal.dto.QueryResultsRating;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CollectionUtils;
 
-import java.util.List;
-
 public class Recall extends RelevanceEvaluator {
+
     protected Recall(Integer probeSize) {
         super(probeSize, RelevanceEvaluatorType.RECALL);
     }
@@ -36,21 +36,22 @@ public class Recall extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
-        if (queryRating == null
-                || CollectionUtils.isEmpty(queryRating.getQueryResultsDocRating())) {
-            throw new RelevanceEvaluatorException("Recall: Input results ratings can not be empty");
+    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
+        if (queryResultsRating == null || CollectionUtils
+            .isEmpty(queryResultsRating.getQueryResultsDocRating())) {
+            throw new RelevanceEvaluatorException("Recall: query results ratings can not be empty");
         }
 
-        List<DocRating> inputDocRatings = queryRating.getQueryResultsDocRating();
+        List<DocRating> queryResultDocRatings = queryResultsRating.getQueryResultsDocRating();
         if (probeSize == null) {
-            probeSize = inputDocRatings.size();
+            probeSize = queryResultDocRatings.size();
         } else {
-            probeSize = Math.min(probeSize, inputDocRatings.size());
+            probeSize = Math.min(probeSize, queryResultDocRatings.size());
         }
 
-        int totalRelevant = totalRelevantDocsInProbeSize(inputDocRatings);
+        int truePositive = queryResultsRating.truePositiveInSize(probeSize);
+        int falseNegative = queryResultsRating.falseNegative();
 
-        return (double) totalRelevant / queryRating.getTotalRelevantHits();
+        return (double) truePositive / (truePositive + falseNegative);
     }
 }

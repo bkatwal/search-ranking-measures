@@ -19,14 +19,13 @@ SOFTWARE.
  */
 package org.bkatwal.relevanceevaluator;
 
-import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.DocRatingBuilder;
-import org.bkatwal.dto.QueryRating;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.bkatwal.dto.DocRating;
+import org.bkatwal.dto.DocRatingBuilder;
+import org.bkatwal.dto.QueryResultsRating;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class TestExtendedReciprocalRank {
 
@@ -46,18 +45,22 @@ public class TestExtendedReciprocalRank {
         resultSetRatings.add(DocRatingBuilder.aDocRating().docId("doc 8").relevant(true).build());
         resultSetRatings.add(DocRatingBuilder.aDocRating().docId("doc 9").relevant(true).build());
 
-        QueryRating queryRating = new QueryRating();
-        queryRating.setQueryResultsDocRating(resultSetRatings);
+        QueryResultsRating queryResultsRating = new QueryResultsRating();
+        queryResultsRating.setQueryResultsDocRating(resultSetRatings);
 
         List<DocRating> knownRelevantDocsRating = new ArrayList<>();
-        knownRelevantDocsRating.add(DocRatingBuilder.aDocRating().docId("doc 1").maxPosition(2).build());
-        knownRelevantDocsRating.add(DocRatingBuilder.aDocRating().docId("doc 5").maxPosition(4).build());
-        knownRelevantDocsRating.add(DocRatingBuilder.aDocRating().docId("doc 8").maxPosition(6).build());
-        knownRelevantDocsRating.add(DocRatingBuilder.aDocRating().docId("doc 11").maxPosition(8).build());
+        knownRelevantDocsRating
+            .add(DocRatingBuilder.aDocRating().docId("doc 1").maxPosition(2).build());
+        knownRelevantDocsRating
+            .add(DocRatingBuilder.aDocRating().docId("doc 5").maxPosition(4).build());
+        knownRelevantDocsRating
+            .add(DocRatingBuilder.aDocRating().docId("doc 8").maxPosition(6).build());
+        knownRelevantDocsRating
+            .add(DocRatingBuilder.aDocRating().docId("doc 11").maxPosition(8).build());
 
-        queryRating.setKnownRelevantDocsRating(knownRelevantDocsRating);
+        queryResultsRating.setKnownRelevantDocsRating(knownRelevantDocsRating);
 
-        double metric = extendedReciprocalRank.evalQuery(queryRating);
-        Assert.assertEquals(0.46, metric, 0.1D);
+        double metric = extendedReciprocalRank.evalQuery(queryResultsRating);
+        Assert.assertEquals(0.46, metric, 0.01D);
     }
 }

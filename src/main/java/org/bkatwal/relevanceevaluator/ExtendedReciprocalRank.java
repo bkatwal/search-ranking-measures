@@ -19,75 +19,73 @@ SOFTWARE.
  */
 package org.bkatwal.relevanceevaluator;
 
-import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryRating;
-import org.bkatwal.exceptions.RelevanceEvaluatorException;
-import org.bkatwal.util.CollectionUtils;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.bkatwal.dto.DocRating;
+import org.bkatwal.dto.QueryResultsRating;
+import org.bkatwal.exceptions.RelevanceEvaluatorException;
+import org.bkatwal.util.CollectionUtils;
 
 public class ExtendedReciprocalRank extends RelevanceEvaluator {
-    protected ExtendedReciprocalRank(Integer probeSize) {
-        super(probeSize, RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
+  protected ExtendedReciprocalRank(Integer probeSize) {
+    super(probeSize, RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
+  }
+
+  protected ExtendedReciprocalRank() {
+    super(RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
+  }
+
+  @Override
+  protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
+    List<DocRating> queryResultsDocRating = queryResultsRating.getQueryResultsDocRating();
+
+    if (CollectionUtils.isEmpty(queryResultsDocRating)) {
+      throw new RelevanceEvaluatorException(
+          "Extended Reciprocal Rank: Query results ratings can not be empty");
     }
 
-    protected ExtendedReciprocalRank() {
-        super(RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
+    if (CollectionUtils.isEmpty(queryResultsRating.getKnownRelevantDocsRating())) {
+      throw new RelevanceEvaluatorException("Reciprocal Rank: missing known relevant docs list");
+    }
+    Map<String, Integer> docIdToPositionMap = getPositionByDocIDMap(queryResultsDocRating);
+
+    List<DocRating> knownRelevantDocsRating = queryResultsRating.getKnownRelevantDocsRating();
+    double err = 0.0d;
+    for (int i = 0; i < knownRelevantDocsRating.size(); i++) {
+
+      int foundAt = -1;
+      String docId = knownRelevantDocsRating.get(i).getDocId();
+
+      if (docIdToPositionMap.containsKey(docId)) {
+        foundAt = docIdToPositionMap.get(docId);
+      }
+      if (foundAt == -1) {
+        err = err + 0.0d;
+      } else {
+        int maxPosition =
+            knownRelevantDocsRating.get(i).getMaxPosition() != null
+                ? knownRelevantDocsRating.get(i).getMaxPosition()
+                : i + 1;
+
+        if (foundAt > maxPosition) {
+          err = err + (double) 1 / (foundAt - maxPosition + 1);
+        } else {
+          err = err + 1.0D;
+        }
+      }
     }
 
-    @Override
-    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
-        List<DocRating> inputDocRatings = queryRating.getQueryResultsDocRating();
+    return err / knownRelevantDocsRating.size();
+  }
 
-        if (CollectionUtils.isEmpty(inputDocRatings)) {
-            throw new RelevanceEvaluatorException(
-                    "Extended Reciprocal Rank: Input results ratings can not be empty");
-        }
+  private Map<String, Integer> getPositionByDocIDMap(List<DocRating> queryResultsDocRating) {
+    Map<String, Integer> map = new HashMap<>();
 
-        if (CollectionUtils.isEmpty(queryRating.getKnownRelevantDocsRating())) {
-            throw new RelevanceEvaluatorException(
-                    "Reciprocal Rank: missing predefined relevant docs list");
-        }
-        Map<String, Integer> docIdToPositionMap = getPositionByDocIDMap(inputDocRatings);
-
-        List<DocRating> preDefinedDocRatings = queryRating.getKnownRelevantDocsRating();
-        double err = 0.0d;
-        for (int i = 0; i < preDefinedDocRatings.size(); i++) {
-
-            int foundAt = -1;
-            String docId = preDefinedDocRatings.get(i).getDocId();
-
-            if (docIdToPositionMap.containsKey(docId)) {
-                foundAt = docIdToPositionMap.get(docId);
-            }
-            if (foundAt == -1) {
-                err = err + 0.0d;
-            } else {
-                int maxPosition =
-                        preDefinedDocRatings.get(i).getMaxPosition() != null
-                                ? preDefinedDocRatings.get(i).getMaxPosition()
-                                : i + 1;
-
-                if (foundAt > maxPosition) {
-                    err = err + (double) 1 / (foundAt - maxPosition + 1);
-                } else {
-                    err = err + 1.0D;
-                }
-            }
-        }
-
-        return err / preDefinedDocRatings.size();
+    for (int i = 0; i < queryResultsDocRating.size(); i++) {
+      String docId = queryResultsDocRating.get(i).getDocId();
+      map.put(docId, i + 1);
     }
-
-    private Map<String, Integer> getPositionByDocIDMap(List<DocRating> inputDocRatings) {
-        Map<String, Integer> map = new HashMap<>();
-
-        for (int i = 0; i < inputDocRatings.size(); i++) {
-            String docId = inputDocRatings.get(i).getDocId();
-            map.put(docId, i + 1);
-        }
-        return map;
-    }
+    return map;
+  }
 }

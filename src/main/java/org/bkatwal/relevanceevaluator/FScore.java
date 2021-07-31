@@ -19,9 +19,10 @@ SOFTWARE.
  */
 package org.bkatwal.relevanceevaluator;
 
-
-import org.bkatwal.dto.QueryRating;
+import java.util.Collections;
+import org.bkatwal.dto.QueryResultsRating;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
+import org.bkatwal.util.CollectionUtils;
 
 public class FScore extends RelevanceEvaluator {
 
@@ -53,10 +54,20 @@ public class FScore extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
+    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
 
-        double precision = precisionEvaluator.eval(queryRating);
-        double recall = recallEvaluator.eval(queryRating);
+        if (queryResultsRating == null || CollectionUtils
+            .isEmpty(queryResultsRating.getQueryResultsDocRating())) {
+            throw new RelevanceEvaluatorException(
+                "F Score: query results ratings can not be empty");
+        }
+
+        if (CollectionUtils.isEmpty(queryResultsRating.getKnownRelevantDocsRating())) {
+            queryResultsRating.setKnownRelevantDocsRating(Collections.emptyList());
+        }
+
+        double precision = precisionEvaluator.eval(queryResultsRating);
+        double recall = recallEvaluator.eval(queryResultsRating);
 
         if (precision == 0.0d || recall == 0.0d) {
             return 0.0d;

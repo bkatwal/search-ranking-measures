@@ -19,23 +19,33 @@ SOFTWARE.
  */
 package org.bkatwal.dto;
 
-
-import org.bkatwal.relevanceevaluator.RelevanceEvaluatorType;
-
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.bkatwal.relevanceevaluator.RelevanceEvaluatorType;
 
-
-public class RelevanceVal implements Serializable {
+public class RelevanceQualityMetric implements Serializable {
 
     private final RelevanceEvaluatorType relevanceEvaluatorType;
     private double meanMetric;
-    private Map<Integer, Double> queryInstanceToMetric;
+    private Map<Integer, Double> qualityMetricByInstanceId;
 
-    public RelevanceVal(RelevanceEvaluatorType relevanceEvaluatorType) {
+    private Map<Integer, List<String>> assertionFailedDocsByInstanceId;
+
+    public RelevanceQualityMetric(RelevanceEvaluatorType relevanceEvaluatorType) {
         this.relevanceEvaluatorType = relevanceEvaluatorType;
-        queryInstanceToMetric = new HashMap<>();
+        qualityMetricByInstanceId = new HashMap<>();
+        assertionFailedDocsByInstanceId = new HashMap<>();
+    }
+
+    public Map<Integer, List<String>> getAssertionFailedDocsByInstanceId() {
+        return assertionFailedDocsByInstanceId;
+    }
+
+    public void setAssertionFailedDocsByInstanceId(
+        Map<Integer, List<String>> assertionFailedDocsByInstanceId) {
+        this.assertionFailedDocsByInstanceId = assertionFailedDocsByInstanceId;
     }
 
     public RelevanceEvaluatorType getScorerEnum() {
@@ -54,11 +64,11 @@ public class RelevanceVal implements Serializable {
         this.meanMetric = meanMetric;
     }
 
-    public Map<Integer, Double> getQueryInstanceToMetric() {
-        return queryInstanceToMetric;
+    public Map<Integer, Double> getQualityMetricByInstanceId() {
+        return qualityMetricByInstanceId;
     }
 
-    public void setQueryInstanceToMetric(Map<Integer, Double> queryInstanceToMetric) {
-        this.queryInstanceToMetric = queryInstanceToMetric;
+    public void setQualityMetricByInstanceId(Map<Integer, Double> qualityMetricByInstanceId) {
+        this.qualityMetricByInstanceId = qualityMetricByInstanceId;
     }
 }

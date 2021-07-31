@@ -27,13 +27,15 @@ import org.bkatwal.dto.QueryResultsRating;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestFScore {
+public class TestRecall {
 
     @Test
-    public void testEvalF1WithGivenTotalRelevantHits() {
-        RelevanceEvaluator fScore = new FScore(1);
-        List<DocRating> resultDocs = new ArrayList<>();
+    public void evalQueryGivenKnownDocsList() {
+        RelevanceEvaluator recall = new Recall();
 
+        QueryResultsRating queryResultsRating = new QueryResultsRating();
+
+        List<DocRating> resultDocs = new ArrayList<>();
         resultDocs.add(DocRatingBuilder.aDocRating().docId("1").relevant(true).build());
         resultDocs.add(DocRatingBuilder.aDocRating().docId("2").relevant(true).build());
         resultDocs.add(DocRatingBuilder.aDocRating().docId("3").relevant(false).build());
@@ -42,20 +44,16 @@ public class TestFScore {
         resultDocs.add(DocRatingBuilder.aDocRating().docId("6").relevant(true).build());
         resultDocs.add(DocRatingBuilder.aDocRating().docId("7").relevant(true).build());
 
-        QueryResultsRating queryResultsRating = new QueryResultsRating();
         queryResultsRating.setQueryResultsDocRating(resultDocs);
 
         List<DocRating> knownDocs = new ArrayList<>();
         knownDocs.add(DocRatingBuilder.aDocRating().docId("1").relevant(true).build());
         knownDocs.add(DocRatingBuilder.aDocRating().docId("5").relevant(true).build());
         knownDocs.add(DocRatingBuilder.aDocRating().docId("10").relevant(true).build());
-        knownDocs.add(DocRatingBuilder.aDocRating().docId("11").relevant(true).build());
 
         queryResultsRating.setKnownRelevantDocsRating(knownDocs);
 
-        // P = 6/7 = 0.8571 and R = 6/7 = 0.875
-        // 2PR = 1.4999   p + r = 1.7321
-        double metric = fScore.evalQuery(queryResultsRating);
-        Assert.assertEquals(0.79, metric, 0.01D);
+        double metric = recall.evalQuery(queryResultsRating);
+        Assert.assertEquals(0.85, metric, 0.01D);
     }
 }

@@ -27,24 +27,32 @@ import org.bkatwal.dto.QueryResultsRating;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestPrecision {
+public class TestReciprocalRank {
 
     @Test
-    public void precision() {
-        RelevanceEvaluator precisionEvaluator = new Precision(6);
+    public void testEvalQuery() {
+        RelevanceEvaluator reciprocalRank = new ReciprocalRank();
+
         List<DocRating> docsToEval = new ArrayList<>();
 
-        docsToEval.add(DocRatingBuilder.aDocRating().docId("1").relevant(true).build());
-        docsToEval.add(DocRatingBuilder.aDocRating().docId("2").relevant(true).build());
-        docsToEval.add(DocRatingBuilder.aDocRating().docId("3").relevant(false).build());
-        docsToEval.add(DocRatingBuilder.aDocRating().docId("4").relevant(true).build());
-        docsToEval.add(DocRatingBuilder.aDocRating().docId("5").relevant(false).build());
-        docsToEval.add(DocRatingBuilder.aDocRating().docId("6").relevant(true).build());
-        docsToEval.add(DocRatingBuilder.aDocRating().docId("7").relevant(true).build());
+        docsToEval.add(DocRatingBuilder.aDocRating().docId("1").relevant(true).grade(8D).build());
+        docsToEval.add(DocRatingBuilder.aDocRating().docId("2").relevant(true).grade(10D).build());
+        docsToEval
+            .add(DocRatingBuilder.aDocRating().docId("3").relevant(false).grade(0.0D).build());
+        docsToEval.add(DocRatingBuilder.aDocRating().docId("4").relevant(true).grade(6D).build());
+        docsToEval.add(DocRatingBuilder.aDocRating().docId("5").relevant(true).grade(4D).build());
+        docsToEval.add(DocRatingBuilder.aDocRating().docId("6").relevant(true).grade(5D).build());
+        docsToEval.add(DocRatingBuilder.aDocRating().docId("7").relevant(true).grade(1D).build());
 
         QueryResultsRating queryResultsRating = new QueryResultsRating();
         queryResultsRating.setQueryResultsDocRating(docsToEval);
-        double metric = precisionEvaluator.evalQuery(queryResultsRating);
-        Assert.assertEquals(0.66, metric, 0.01D);
+
+        List<DocRating> knownRelevantDocs = new ArrayList<>();
+        knownRelevantDocs.add(DocRatingBuilder.aDocRating().docId("5").grade(8D).build());
+        knownRelevantDocs.add(DocRatingBuilder.aDocRating().docId("1").grade(7D).build());
+        queryResultsRating.setKnownRelevantDocsRating(knownRelevantDocs);
+
+        double metric = reciprocalRank.evalQuery(queryResultsRating);
+        Assert.assertEquals(0.2, metric, 0.01D);
     }
 }

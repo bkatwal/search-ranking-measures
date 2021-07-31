@@ -20,12 +20,11 @@ SOFTWARE.
 package org.bkatwal.relevanceevaluator;
 
 
+import java.util.List;
 import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryRating;
+import org.bkatwal.dto.QueryResultsRating;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CollectionUtils;
-
-import java.util.List;
 
 public class AveragePrecision extends RelevanceEvaluator {
 
@@ -38,25 +37,25 @@ public class AveragePrecision extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
+    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
 
-        if (queryRating == null
-                || CollectionUtils.isEmpty(queryRating.getQueryResultsDocRating())) {
+        if (queryResultsRating == null
+            || CollectionUtils.isEmpty(queryResultsRating.getQueryResultsDocRating())) {
             throw new RelevanceEvaluatorException(
-                    "Average Precision: Input results ratings can not be empty");
+                "Average Precision: query results ratings can not be empty");
         }
 
-        List<DocRating> inputDocRatings = queryRating.getQueryResultsDocRating();
+        List<DocRating> queryResultsDocRating = queryResultsRating.getQueryResultsDocRating();
         if (probeSize == null) {
-            probeSize = inputDocRatings.size();
+            probeSize = queryResultsDocRating.size();
         } else {
-            probeSize = Math.min(probeSize, inputDocRatings.size());
+            probeSize = Math.min(probeSize, queryResultsDocRating.size());
         }
 
         double[] precisionAtRank = new double[probeSize];
         int totalRelevant = 0;
         for (int rank = 0; rank < probeSize; rank++) {
-            if (inputDocRatings.get(rank).getRelevant()) {
+            if (queryResultsDocRating.get(rank).getRelevant()) {
                 totalRelevant++;
                 precisionAtRank[rank] = (double) totalRelevant / (rank + 1);
             }

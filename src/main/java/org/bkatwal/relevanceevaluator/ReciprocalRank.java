@@ -19,14 +19,14 @@ SOFTWARE.
  */
 package org.bkatwal.relevanceevaluator;
 
+import java.util.List;
 import org.bkatwal.dto.DocRating;
-import org.bkatwal.dto.QueryRating;
+import org.bkatwal.dto.QueryResultsRating;
 import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CollectionUtils;
 
-import java.util.List;
-
 public class ReciprocalRank extends RelevanceEvaluator {
+
     protected ReciprocalRank(Integer probeSize) {
         super(probeSize, RelevanceEvaluatorType.RECIPROCAL_RANKING);
     }
@@ -36,26 +36,26 @@ public class ReciprocalRank extends RelevanceEvaluator {
     }
 
     @Override
-    protected double eval(QueryRating queryRating) throws RelevanceEvaluatorException {
-        List<DocRating> inputDocRatings = queryRating.getQueryResultsDocRating();
+    protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
+        List<DocRating> queryResultsDocRating = queryResultsRating.getQueryResultsDocRating();
 
-        if (CollectionUtils.isEmpty(inputDocRatings)) {
+        if (CollectionUtils.isEmpty(queryResultsDocRating)) {
             throw new RelevanceEvaluatorException(
-                    "Reciprocal Rank: Input results ratings can not be empty");
+                "Reciprocal Rank: Query results ratings can not be empty");
         }
 
-        if (CollectionUtils.isEmpty(queryRating.getKnownRelevantDocsRating())) {
-            throw new RelevanceEvaluatorException("Reciprocal Rank: missing top relevant docs " +
-                    "list");
+        if (CollectionUtils.isEmpty(queryResultsRating.getKnownRelevantDocsRating())) {
+            throw new RelevanceEvaluatorException(
+                "Reciprocal Rank: missing top relevant docs list");
         }
         int foundAt = -1;
-        for (int rank = 0; rank < inputDocRatings.size(); rank++) {
+        for (int rank = 0; rank < queryResultsDocRating.size(); rank++) {
 
             // if first relevant doc equals at any position, update foundAt
-            if (inputDocRatings
-                    .get(rank)
-                    .getDocId()
-                    .equals(queryRating.getKnownRelevantDocsRating().get(0).getDocId())) {
+            if (queryResultsDocRating
+                .get(rank)
+                .getDocId()
+                .equals(queryResultsRating.getKnownRelevantDocsRating().get(0).getDocId())) {
                 foundAt = rank + 1;
                 break;
             }

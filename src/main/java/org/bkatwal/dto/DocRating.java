@@ -19,15 +19,16 @@ SOFTWARE.
  */
 package org.bkatwal.dto;
 
+
 import java.io.Serializable;
 
-
 public class DocRating implements Serializable {
+
     private String docId;
 
     private Double grade = 0.0D;
 
-    private Boolean relevant = false;
+    private boolean relevant = false;
 
     private Integer maxPosition;
 
@@ -39,7 +40,7 @@ public class DocRating implements Serializable {
         return grade;
     }
 
-    public Boolean getRelevant() {
+    public boolean getRelevant() {
         return relevant;
     }
 
@@ -55,7 +56,7 @@ public class DocRating implements Serializable {
         this.grade = grade;
     }
 
-    public void setRelevant(Boolean relevant) {
+    public void setRelevant(boolean relevant) {
         this.relevant = relevant;
     }
 
