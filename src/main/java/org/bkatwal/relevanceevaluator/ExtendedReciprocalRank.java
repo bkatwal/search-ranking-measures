@@ -28,64 +28,63 @@ import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CollectionUtils;
 
 public class ExtendedReciprocalRank extends RelevanceEvaluator {
-  protected ExtendedReciprocalRank(Integer probeSize) {
-    super(probeSize, RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
-  }
 
-  protected ExtendedReciprocalRank() {
-    super(RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
-  }
-
-  @Override
-  protected double eval(QueryResultsRating queryResultsRating) throws RelevanceEvaluatorException {
-    List<DocRating> queryResultsDocRating = queryResultsRating.getQueryResultsDocRating();
-
-    if (CollectionUtils.isEmpty(queryResultsDocRating)) {
-      throw new RelevanceEvaluatorException(
-          "Extended Reciprocal Rank: Query results ratings can not be empty");
+    protected ExtendedReciprocalRank(Integer probeSize) {
+        super(probeSize, RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
     }
 
-    if (CollectionUtils.isEmpty(queryResultsRating.getKnownRelevantDocsRating())) {
-      throw new RelevanceEvaluatorException("Reciprocal Rank: missing known relevant docs list");
+    protected ExtendedReciprocalRank() {
+        super(RelevanceEvaluatorType.EXTENDED_RECIPROCAL_RANKING);
     }
-    Map<String, Integer> docIdToPositionMap = getPositionByDocIDMap(queryResultsDocRating);
 
-    List<DocRating> knownRelevantDocsRating = queryResultsRating.getKnownRelevantDocsRating();
-    double err = 0.0d;
-    for (int i = 0; i < knownRelevantDocsRating.size(); i++) {
+    @Override
+    protected double eval(QueryResultsRating queryResultsRating)
+        throws RelevanceEvaluatorException {
+        List<DocRating> queryResultsDocRating = queryResultsRating.getQueryResultsDocRating();
 
-      int foundAt = -1;
-      String docId = knownRelevantDocsRating.get(i).getDocId();
-
-      if (docIdToPositionMap.containsKey(docId)) {
-        foundAt = docIdToPositionMap.get(docId);
-      }
-      if (foundAt == -1) {
-        err = err + 0.0d;
-      } else {
-        int maxPosition =
-            knownRelevantDocsRating.get(i).getMaxPosition() != null
-                ? knownRelevantDocsRating.get(i).getMaxPosition()
-                : i + 1;
-
-        if (foundAt > maxPosition) {
-          err = err + (double) 1 / (foundAt - maxPosition + 1);
-        } else {
-          err = err + 1.0D;
+        if (CollectionUtils.isEmpty(queryResultsDocRating)) {
+            throw new RelevanceEvaluatorException(
+                "Extended Reciprocal Rank: Query results ratings can not be empty");
         }
-      }
+
+        if (CollectionUtils.isEmpty(queryResultsRating.getKnownRelevantDocsRating())) {
+            throw new RelevanceEvaluatorException(
+                "Reciprocal Rank: missing known relevant docs list");
+        }
+        Map<String, Integer> docIdToPositionMap = getPositionByDocIDMap(queryResultsDocRating);
+
+        List<DocRating> knownRelevantDocsRating = queryResultsRating.getKnownRelevantDocsRating();
+        double extendedRR = 0.0d;
+        for (int i = 0; i < knownRelevantDocsRating.size(); i++) {
+            String docId = knownRelevantDocsRating.get(i).getDocId();
+
+            if (docIdToPositionMap.containsKey(docId)) {
+                int foundAt = docIdToPositionMap.get(docId);
+                int maxPosition =
+                    knownRelevantDocsRating.get(i).getMaxPosition() != null
+                        ? knownRelevantDocsRating.get(i).getMaxPosition()
+                        : i + 1;
+
+                if (foundAt > maxPosition) {
+                    extendedRR = extendedRR + (double) 1 / (foundAt - maxPosition + 1);
+                } else {
+                    extendedRR = extendedRR + 1.0D;
+                }
+            } else {
+                extendedRR = extendedRR + 0.0d;
+            }
+        }
+
+        return extendedRR / knownRelevantDocsRating.size();
     }
 
-    return err / knownRelevantDocsRating.size();
-  }
+    private Map<String, Integer> getPositionByDocIDMap(List<DocRating> queryResultsDocRating) {
+        Map<String, Integer> map = new HashMap<>();
 
-  private Map<String, Integer> getPositionByDocIDMap(List<DocRating> queryResultsDocRating) {
-    Map<String, Integer> map = new HashMap<>();
-
-    for (int i = 0; i < queryResultsDocRating.size(); i++) {
-      String docId = queryResultsDocRating.get(i).getDocId();
-      map.put(docId, i + 1);
+        for (int i = 0; i < queryResultsDocRating.size(); i++) {
+            String docId = queryResultsDocRating.get(i).getDocId();
+            map.put(docId, i + 1);
+        }
+        return map;
     }
-    return map;
-  }
 }
