@@ -28,13 +28,13 @@ import org.bkatwal.exceptions.RelevanceEvaluatorException;
 import org.bkatwal.util.CalculateUtil;
 import org.bkatwal.util.CollectionUtils;
 
-public class DCG extends RelevanceEvaluator {
+public class NDCG extends RelevanceEvaluator {
 
-    protected DCG(Integer probeSize) {
+    protected NDCG(Integer probeSize) {
         super(probeSize, RelevanceEvaluatorType.DCG);
     }
 
-    protected DCG() {
+    protected NDCG() {
         super(RelevanceEvaluatorType.DCG);
     }
 

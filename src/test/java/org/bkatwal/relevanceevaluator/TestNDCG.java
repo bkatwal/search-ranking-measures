@@ -27,11 +27,11 @@ import org.bkatwal.dto.QueryResultsRating;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestDCG {
+public class TestNDCG {
 
     @Test
     public void testEvalQueryBasedOnResultSetRating() {
-        RelevanceEvaluator dcg = new DCG();
+        RelevanceEvaluator dcg = new NDCG();
 
         List<DocRating> docsToEval = new ArrayList<>();
 
@@ -52,7 +52,7 @@ public class TestDCG {
 
     @Test
     public void testEvalIdealResult() {
-        RelevanceEvaluator dcg = new DCG();
+        RelevanceEvaluator dcg = new NDCG();
 
         List<DocRating> docsToEval = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class TestDCG {
 
     @Test
     public void testEvalWithKnownGradedDocs() {
-        RelevanceEvaluator dcg = new DCG();
+        RelevanceEvaluator dcg = new NDCG();
 
         QueryResultsRating queryResultsRating = new QueryResultsRating();
         List<DocRating> resultDocs = new ArrayList<>();
